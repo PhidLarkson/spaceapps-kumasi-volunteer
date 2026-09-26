@@ -34,7 +34,7 @@ h1{font:900 clamp(34px,6vw,56px)/1.06 "Fira Sans";letter-spacing:.05em;text-tran
 main.wrap{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);gap:48px;padding-top:44px;padding-bottom:56px}
 @media (max-width:860px){main.wrap{grid-template-columns:1fr;gap:28px;padding-top:28px}.preview{position:static}}
 .preview{position:sticky;top:20px;align-self:start}
-canvas{width:100%;height:auto;display:block;background:#fff;box-shadow:0 1px 0 var(--line),0 12px 40px rgba(7,23,63,.12);touch-action:none;cursor:grab}
+canvas{width:100%;height:auto;display:block;background:#07173F;box-shadow:0 1px 0 var(--line),0 12px 40px rgba(7,23,63,.12);touch-action:none;cursor:grab}
 canvas.dragging{cursor:grabbing}
 .hint{font-size:14px;color:var(--slate);margin:12px 0 0}
 .formats{display:flex;border:1.5px solid var(--deep);margin-bottom:14px}
@@ -81,11 +81,7 @@ svg.i{width:18px;height:18px;flex:none}
 
 <main class="wrap">
   <section class="preview" aria-label="Card preview">
-    <div class="formats" role="group" aria-label="Card size">
-      <button id="fPost" aria-pressed="true">Post 4:5</button>
-      <button id="fStatus" aria-pressed="false">Status 9:16</button>
-    </div>
-    <canvas id="c" width="1080" height="1350" aria-label="Your volunteer card"></canvas>
+        <canvas id="c" width="1080" height="1350" aria-label="Your volunteer card"></canvas>
     <p class="hint">Drag the photo to move it. Pinch, scroll or use the slider to zoom.</p>
   </section>
 
@@ -115,10 +111,7 @@ svg.i{width:18px;height:18px;flex:none}
 </div></footer>
 
 <script>
-const F = {
-  post:   {h: 1350, layer: "assets/layer-post.png",   cx: 540, cy: 740,  r: 350, name: 1130, role: 1205},
-  status: {h: 1920, layer: "assets/layer-status.png", cx: 540, cy: 1030, r: 500, name: 1620, role: 1705}
-};
+const F = {post: {h: 1350, layer: "assets/layer-post.png?v=3", cx: 540, cy: 770, r: 330, name: 1140, role: 1215}};
 const c = document.getElementById("c"), g = c.getContext("2d"), $ = id => document.getElementById(id);
 let fmt = "post", layer = new Image(), photo = null, s = 1, ox = 0, oy = 0;
 
@@ -134,17 +127,17 @@ function draw() {
   const {cx, cy, r, name, role} = F[fmt];
   g.clearRect(0, 0, c.width, c.height);
   g.save(); g.beginPath(); g.arc(cx, cy, r, 0, Math.PI * 2); g.clip();
-  g.fillStyle = "#EEF2F9"; g.fillRect(cx - r, cy - r, 2 * r, 2 * r);
+  g.fillStyle = "#0B2A6E"; g.fillRect(cx - r, cy - r, 2 * r, 2 * r);
   if (photo) g.drawImage(photo, ox, oy, photo.width * s, photo.height * s);
-  else { g.fillStyle = "#8C9AB8"; g.font = "600 24px Overpass"; g.textAlign = "center"; g.letterSpacing = "4px"; g.fillText("YOUR PHOTO", cx, cy + 8); g.letterSpacing = "0px"; }
+  else { g.fillStyle = "#AEBBDA"; g.font = "600 24px Overpass"; g.textAlign = "center"; g.letterSpacing = "4px"; g.fillText("YOUR PHOTO", cx, cy + 8); g.letterSpacing = "0px"; }
   g.restore();
   if (layer.complete) g.drawImage(layer, 0, 0, 1080, F[fmt].h);
   const nm = ($("name").value.trim() || "Your Name").toUpperCase(), rl = $("role").value.trim() || "Volunteer";
-  g.textAlign = "center"; g.textBaseline = "top"; g.fillStyle = "#07173F";
-  let size = 60; g.letterSpacing = "2px";
+  g.textAlign = "center"; g.textBaseline = "top"; g.fillStyle = "#FFFFFF";
+  let size = 62; g.letterSpacing = "2px";
   do { g.font = `900 ${size}px "Fira Sans"`; size -= 2; } while (g.measureText(nm).width > 900 && size > 34);
-  g.fillText(nm, 540, name + (60 - size) / 2);
-  g.letterSpacing = "0px"; g.fillStyle = "#0960E1"; g.font = "400 36px Overpass"; g.fillText(rl, 540, role);
+  g.fillText(nm, 540, name + (62 - size) / 2);
+  g.letterSpacing = "0px"; g.fillStyle = "#EAFE07"; g.font = "600 40px Overpass"; g.fillText(rl, 540, role);
 }
 // pointer: drag with one finger, pinch with two
 const pts = new Map(); let pinch = null;
@@ -167,15 +160,14 @@ $("file").addEventListener("change", e => {
   const img = new Image(); img.onload = () => { photo = img; ["zoom", "fit", "dl", "share"].forEach(id => $(id).disabled = false); fit(); }; img.src = URL.createObjectURL(f);
 });
 $("fit").onclick = fit; $("name").oninput = draw; $("role").oninput = draw;
-function setFmt(f) { fmt = f; $("fPost").setAttribute("aria-pressed", f === "post"); $("fStatus").setAttribute("aria-pressed", f === "status"); loadLayer(); }
-$("fPost").onclick = () => setFmt("post"); $("fStatus").onclick = () => setFmt("status");
-const fileName = () => "SpaceAppsKumasi-volunteer-" + ($("name").value.trim().replace(/\s+/g, "-") || "card") + (fmt === "status" ? "-status" : "") + ".png";
+
+const fileName = () => "SpaceAppsKumasi-volunteer-" + ($("name").value.trim().replace(/\s+/g, "-") || "card")  + ".png";
 $("dl").onclick = () => { const a = document.createElement("a"); a.download = fileName(); a.href = c.toDataURL("image/png"); a.click(); };
 if (navigator.canShare && navigator.canShare({files: [new File([""], "x.png", {type: "image/png"})]})) {
   $("share").hidden = false;
   $("share").onclick = () => c.toBlob(b => navigator.share({files: [new File([b], fileName(), {type: "image/png"})], text: "Proud to volunteer at NASA Space Apps Kumasi 2026 #SpaceAppsKumasi @spaceappsksi"}).catch(() => {}), "image/png");
 }
-document.fonts.load('900 60px "Fira Sans"').then(() => document.fonts.load("400 36px Overpass")).then(loadLayer);
+document.fonts.load('900 60px "Fira Sans"').then(() => document.fonts.load("600 40px Overpass")).then(loadLayer);
 </script>
 </body>
 </html>
